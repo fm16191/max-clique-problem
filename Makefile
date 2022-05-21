@@ -24,16 +24,17 @@ DEPS=build
 SRC=src
 
 all: $(TARGET)
+build: $(TARGET)
 
 $(DEPS)/%.o: $(SRC)/%.c
 	@mkdir -p $(DEPS)
 	$(CC) $(CFLAGS) $(OFLAGS) -c $< -o $@
 
-mcps: $(DEPS)/main.o
+mcps: $(DEPS)/main.o $(DEPS)/mcps.o
 	$(CC) $(CFLAGS) $(OFLAGS) $^ -o $@ $(LDFLAGS)
 
 clean: 
-	rm -f $(TARGET) $(DEPS) *.o
+	rm -rf $(TARGET) $(DEPS) *.o
 
 example: $(TARGET)
 	./$(TARGET) samples/C125.9.clq
@@ -44,5 +45,5 @@ verif: build
 	echo "=================="
 	diff --color=auto tmp.txt verif.txt
 
-memcheck:
+memcheck: build
 	valgrind --track-origins=yes --leak-check=full --show-leak-kinds=all -s ./$(TARGET) samples/C125.9.clq

@@ -34,10 +34,12 @@ int **read_file(char *name, int *size)
    filepath = malloc(sizeof(char) * (strlen(name) + 4));
    strcpy(filepath, "./");
    strcat(filepath, name);
-   FILE *input;
+   FILE *fp;
 
-   if ((input = fopen(filepath, "r")) == NULL)
+   fp = fopen(filepath, "r");
+   if ((fp = fopen(filepath, "r")) == NULL)
       return printf("Error: Cannot open %s\n", filepath), NULL;
+   free(filepath);
 
    char *line;
    size_t len = 0;
@@ -46,7 +48,7 @@ int **read_file(char *name, int *size)
    // Read Header
    // Format : ^c .*$
    do {
-      read = getline(&line, &len, input);
+      read = getline(&line, &len, fp);
    } while (read != -1 && line[0] == 'c');
 
    int nodes, edges;
@@ -62,13 +64,15 @@ int **read_file(char *name, int *size)
    }
 
    int vi, vj;
-   while ((read = getline(&line, &len, input)) != -1) {
+   while ((read = getline(&line, &len, fp)) != -1) {
       if (line[0] == 'e') {
          sscanf(line, "e %d %d\n", &vi, &vj);
          conn[vi][vj] = 1;
          conn[vj][vi] = 1;
       }
    }
+   free(line);
+   fclose(fp);
    return conn;
 }
 
@@ -107,6 +111,8 @@ int main(int argc, char *argv[])
           ((double)(end - start)) / CLOCKS_PER_SEC);
 
    free(qmax);
+   for (int i = 0; i < size; i++)
+      free(conn[i]);
    free(conn);
    Maxclique_t_free(&m);
 
