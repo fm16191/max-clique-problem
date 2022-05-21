@@ -14,24 +14,35 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-CFLAGS=-g3 -Wall -Wextra
+CC=gcc
+CFLAGS=-g3 -Wall -Wextra -I include/
 OFLAGS=-Ofast -march=native -mtune=native
 # OFLAGS=-Ofast -march=native -mtune=native -funroll-loops -finline-functions -ftree-loop-vectorize -ftree-vectorize
+LDFLAGS=
+TARGET=mcps
+DEPS=build
+SRC=src
 
-build: 
-	gcc $(CFLAGS) $(OFLAGS) main.c -o mcps
+all: $(TARGET)
+
+$(DEPS)/%.o: $(SRC)/%.c
+	@mkdir -p $(DEPS)
+	$(CC) $(CFLAGS) $(OFLAGS) -c $< -o $@
+
+mcps: $(DEPS)/main.o
+	$(CC) $(CFLAGS) $(OFLAGS) $^ -o $@ $(LDFLAGS)
 
 clean: 
-	rm -f mcps *.o
+	rm -f $(TARGET) $(DEPS) *.o
 
-example: build
-	./mcps samples/C125.9.clq
+example: $(TARGET)
+	./$(TARGET) samples/C125.9.clq
 
 verif: build
-	./mcps test.clq | head -n 29 > tmp.txt
+	./$(TARGET) test.clq | head -n 29 > tmp.txt
 	cat tmp.txt
 	echo "=================="
 	diff --color=auto tmp.txt verif.txt
 
 memcheck:
-	valgrind --track-origins=yes --leak-check=full --show-leak-kinds=all -s ./mcps test.clq
+	valgrind --track-origins=yes --leak-check=full --show-leak-kinds=all -s ./$(TARGET) samples/C125.9.clq

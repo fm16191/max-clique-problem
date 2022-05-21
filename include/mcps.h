@@ -19,7 +19,6 @@
 #define MCP_H
 
 #include <assert.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -117,17 +116,17 @@ int steps(Maxclique_t *m)
    return m->pk;
 }
 
-bool connection(Maxclique_t *m, const int i, const int j)
+int connection(Maxclique_t *m, const int i, const int j)
 {
    return m->e[i][j];
 }
 
-bool cut1(Maxclique_t *m, const int pi, const Color_t *A)
+int cut1(Maxclique_t *m, const int pi, const Color_t *A)
 {
    for (int i = 0; i < A->sz; i++)
       if (connection(m, pi, A->i[i]))
-         return true;
-   return false;
+         return 1;
+   return 0;
 }
 
 void cut2(Maxclique_t *m, const Vertices_t *A, Vertices_t *B)
